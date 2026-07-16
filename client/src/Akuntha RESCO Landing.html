@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Akuntha · Commercial Solar Without Capital Investment</title>
+  <meta name="description" content="Reduce your business electricity costs without investing in a solar plant. Akuntha delivers commercial and industrial solar through the RESCO model — engineering, EPC and O&M in one team." />
+
+  <!-- Fonts: editorial serif + technical sans + mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Tweaks panel starter -->
+  <script type="text/babel" src="tweaks_panel.jsx"></script>
+
+  <!-- Components (order matters — icons first, then form, then sections) -->
+  <script type="text/babel" src="components/Icons.jsx"></script>
+  <script type="text/babel" src="components/AssessmentForm.jsx"></script>
+  <script type="text/babel" src="components/Sections.jsx"></script>
+
+  <!-- App -->
+  <script type="text/babel" data-presets="react">
+    const { useEffect } = React;
+
+    // Tweakable defaults — the EDITMODE block below is persisted by the host on Tweaks changes.
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#E97451",
+  "theme": "light",
+  "heroH1": "Reduce your business electricity costs without *investing* in a solar plant."
+}/*EDITMODE-END*/;
+
+    /* Accent presets */
+    const ACCENT_OPTIONS = [
+      "#4C8DFF", // electric blue (default)
+      "#3EB489", // Akuntha green
+      "#F5B547", // solar yellow
+      "#E97451", // industrial rust
+    ];
+
+    /* Apply accent to CSS vars whenever it changes */
+    function applyAccent(hex) {
+      const root = document.documentElement;
+      root.style.setProperty('--accent', hex);
+      // Compute a lighter version for hover
+      root.style.setProperty('--accent-hi', hex + 'CC');
+      // Soft version (14% alpha)
+      const soft = hex + '24';
+      root.style.setProperty('--accent-soft', soft);
+      // Ink on accent: yellow needs dark ink, others too
+      root.style.setProperty('--accent-ink', '#0A1220');
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    function App() {
+      const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      // Apply on mount + on change
+      useEffect(() => { applyAccent(tweaks.accent); }, [tweaks.accent]);
+      useEffect(() => { applyTheme(tweaks.theme); }, [tweaks.theme]);
+
+      return (
+        <>
+          <Nav />
+          <Hero h1={tweaks.heroH1} />
+          <ProblemSection />
+          <RescoExplainer />
+          <BenefitsSection />
+          <EligibilitySection />
+          <ProcessSection />
+          <WhyAkunthaSection />
+          <IndustriesSection />
+          <MidCTA />
+          <FaqSection />
+          <FinalCTA />
+          <Footer />
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Brand">
+              <TweakColor
+                label="Accent color"
+                value={tweaks.accent}
+                onChange={v => setTweak('accent', v)}
+                options={ACCENT_OPTIONS}
+              />
+              <TweakRadio
+                label="Theme"
+                value={tweaks.theme}
+                onChange={v => setTweak('theme', v)}
+                options={[
+                  { value: 'dark',     label: 'Navy' },
+                  { value: 'charcoal', label: 'Charcoal' },
+                  { value: 'light',    label: 'Light' },
+                ]}
+              />
+            </TweakSection>
+
+            <TweakSection label="Hero copy">
+              <TweakText
+                label="Headline"
+                value={tweaks.heroH1}
+                onChange={v => setTweak('heroH1', v)}
+                placeholder="Wrap *text* in asterisks for italic accent."
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
