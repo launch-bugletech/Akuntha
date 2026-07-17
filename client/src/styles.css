@@ -447,7 +447,7 @@ i {
     color: var(--ink-mute);
     font-size: 14.5px;
     line-height: 1.55;
-    margin-bottom: 36px;
+    margin-top: 36px;
     max-width: 56ch;
 }
 .hero-clarify strong {

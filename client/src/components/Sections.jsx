@@ -59,11 +59,6 @@ export function Hero({ h1 }) {
             Share your latest electricity bill and site details. We’ll review whether your factory is suitable for investor-backed solar, financed solar, or direct solar ownership.
           </p>
 
-          <div className="hero-clarify">
-            <strong>Final feasibility depends on</strong> electricity consumption, rooftop or land
-            availability, DISCOM rules, finance approval, investor interest, and commercial terms.
-          </div>
-
           <div className="hero-cta-row">
             <a href="#assessment" className="btn btn-primary btn-lg">
               Check My Site Feasibility
@@ -81,6 +76,12 @@ export function Hero({ h1 }) {
             <li><span className="trust-icon"><IconTools size={16} /></span> Engineering, EPC and O&amp;M in-house</li>
             <li><span className="trust-icon"><IconGrid size={16} /></span> Rooftop and ground-mount capable</li>
           </ul>
+
+          <div className="hero-clarify">
+            <strong>Final feasibility depends on</strong> electricity consumption, rooftop or land
+            availability, DISCOM rules, finance approval, investor interest, and commercial terms.
+          </div>
+
         </div>
 
         <aside className="hero-right">
@@ -152,7 +153,7 @@ export function RescoExplainer() {
   const steps = [
     { n: '01', t: 'RESCO partner invests' },
     { n: '02', t: 'Solar plant is installed at your facility' },
-    { n: '03', t: 'Your business uses the solar electricity' },
+    { n: '03', t: 'You buy solar power at an agreed lower tariff' },
     { n: '04', t: 'The plant is operated and maintained' },
   ];
   return (
@@ -170,17 +171,18 @@ export function RescoExplainer() {
           </p>
         </div>
 
+        
         <div className="resco-flow">
           {steps.map((s, i) => (
             <div className="flow-step" key={s.n} style={{ '--step-index': i }}>
-              <span className="num">- {s.n}</span>
+              <span className="num">{s.n}</span>
               <div className="title">{s.t}</div>
               {i < steps.length - 1 && <IconArrowRight className="arr" size={16} />}
             </div>
           ))}
         </div>
-
-        <div className="diagram-wrap" aria-label="Electricity flow from the grid and RESCO solar array to your facility">
+{/* the annimation flow  */}
+        {/* <div className="diagram-wrap" aria-label="Electricity flow from the grid and RESCO solar array to your facility">
           <div className="diagram-heading">
             <div>
               <strong>Dual-source energy flow</strong>
@@ -251,7 +253,7 @@ export function RescoExplainer() {
             <span><span className="legend-swatch solar"></span>Solar electricity (RESCO agreement)</span>
             <span><span className="legend-swatch grid"></span>Grid electricity (backup supply)</span>
           </div>
-        </div>
+        </div> */}
 
         <div className="compare-grid">
           <div className="compare-card">
