@@ -1883,7 +1883,7 @@ i {
 }
 .industry-card .content .num {
     font-family: var(--sans);
-    font-size: 11px;
+    font-size: 14px;
     letter-spacing: 0.1em;
     color: rgba(255, 255, 255, 0.7);
 }
