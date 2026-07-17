@@ -34,23 +34,47 @@ const OBJECTIVE_OPTIONS = [
   'Support facility expansion',
   'Explore solar feasibility',
 ];
-const CONTACT_TIMES = ['Morning', 'Afternoon', 'Evening', 'No preference'];
+
+const RESCO_API_URL = import.meta.env.VITE_RESCO_API_URL;
+const RESCO_API_TOKEN = import.meta.env.VITE_RESCO_API_TOKEN;
+
+const INITIAL_FORM_DATA = {
+  facility: '',
+  state: '', city: '', landmark: '', pincode: '',
+  latitude: null, longitude: null, locationSource: '', locationLabel: '',
+  bill: '', consumption: '', ownership: '',
+  site: '', area: '', areaUnit: 'sq ft', notSureArea: false, objective: '',
+  company: '', contact: '', mobile: '', email: '',
+  fileName: '', billFile: null, billFileError: '',
+  consent: false,
+};
+
+function validateSubmission(data) {
+  if (!data.facility) return 'Select a facility type.';
+  if (!data.state.trim()) return 'Enter the facility state.';
+  if (!data.city.trim()) return 'Enter the facility city.';
+  if (!/^\d{6}$/.test(data.pincode)) return 'Enter a valid 6-digit PIN code.';
+  if (!data.site) return 'Select where solar could be installed.';
+  if (!data.ownership) return 'Select the property arrangement.';
+  if (!data.bill) return 'Select the approximate monthly electricity bill.';
+  if (!data.company.trim()) return 'Enter the company name.';
+  if (!data.contact.trim()) return 'Enter the contact person.';
+  if (!/^[6-9]\d{9}$/.test(data.mobile)) return 'Enter a valid 10-digit Indian mobile number.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) return 'Enter a valid work email address.';
+  if (!data.objective) return 'Select the primary objective.';
+  if (!data.consent) return 'Consent is required before submitting.';
+  return '';
+}
 
 function AssessmentForm() {
   const [step, setStep] = useState(1);
   const [done, setDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submissionId, setSubmissionId] = useState('');
   const formRef = useRef(null);
   const previousStepRef = useRef(step);
-  const [data, setData] = useState({
-    facility: '',
-    state: '', city: '', landmark: '', pincode: '',
-    latitude: null, longitude: null, locationSource: '', locationLabel: '',
-    bill: '', consumption: '', ownership: '',
-    site: '', area: '', areaUnit: 'sq ft', notSureArea: false, objective: '',
-    company: '', contact: '', mobile: '', email: '', contactTime: '',
-    fileName: '', billFile: null, billFileError: '',
-    consent: true,
-  });
+  const [data, setData] = useState(INITIAL_FORM_DATA);
 
   const set = (k, v) => setData(d => ({ ...d, [k]: v }));
 
@@ -63,27 +87,107 @@ function AssessmentForm() {
 
   const totalSteps = 4;
   const canNext = useMemo(() => {
-    if (step === 1) return data.facility && data.state && data.city && data.pincode;
+    if (step === 1) return data.facility
+      && data.state.trim()
+      && data.city.trim()
+      && /^\d{6}$/.test(data.pincode);
     if (step === 2) return data.site && data.ownership;
     if (step === 3) return data.bill;
     if (step === 4) {
-      return data.company
-        && data.contact
-        && data.mobile
-        && data.email
+      return data.company.trim()
+        && data.contact.trim()
+        && /^[6-9]\d{9}$/.test(data.mobile)
+        && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())
         && data.objective
         && data.consent;
     }
     return false;
   }, [step, data]);
 
+  const submitAssessment = async () => {
+    const validationError = validateSubmission(data);
+    if (validationError) {
+      setSubmitError(validationError);
+      return;
+    }
+
+    if (!RESCO_API_URL) {
+      setSubmitError('The assessment service is not configured. Please try again later.');
+      return;
+    }
+
+    const facilityOption = FACILITY_OPTIONS.find(option => option.id === data.facility);
+    const payload = {
+      apiToken: RESCO_API_TOKEN || '',
+      facility: data.facility,
+      facilityLabel: facilityOption?.label || data.facility,
+      state: data.state.trim(),
+      city: data.city.trim(),
+      landmark: data.landmark.trim(),
+      pincode: data.pincode,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      locationSource: data.locationSource,
+      locationLabel: data.locationLabel,
+      bill: data.bill,
+      consumption: data.consumption,
+      ownership: data.ownership,
+      site: data.site,
+      area: data.area,
+      areaUnit: data.areaUnit,
+      notSureArea: data.notSureArea,
+      objective: data.objective,
+      company: data.company.trim(),
+      contact: data.contact.trim(),
+      mobile: data.mobile,
+      email: data.email.trim(),
+      consent: data.consent,
+    };
+
+    setSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch(RESCO_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        const details = Array.isArray(result.errors) ? result.errors.join(' ') : '';
+        throw new Error(details || result.message || 'The assessment could not be submitted.');
+      }
+
+      setSubmissionId(result.submissionId || 'Submitted');
+      setDone(true);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'The assessment could not be submitted. Please try again.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const next = () => {
     if (step < totalSteps) setStep(step + 1);
-    else if (canNext) setDone(true);
+    else if (canNext && !submitting) submitAssessment();
   };
   const back = () => setStep(Math.max(1, step - 1));
 
-  if (done) return <SuccessScreen data={data} onReset={() => { setDone(false); setStep(1); }} />;
+  const resetForm = () => {
+    setData(INITIAL_FORM_DATA);
+    setSubmissionId('');
+    setSubmitError('');
+    setDone(false);
+    setStep(1);
+  };
+
+  if (done) return <SuccessScreen data={data} submissionId={submissionId} onReset={resetForm} />;
 
   return (
     <div className="form-card" id="assessment" ref={formRef}>
@@ -115,20 +219,34 @@ function AssessmentForm() {
         <button
           className="back"
           onClick={back}
-          disabled={step === 1}
+          disabled={step === 1 || submitting}
         >
           <IconArrowLeft size={14} /> Back
         </button>
         <button
           className="btn btn-primary"
           onClick={next}
-          disabled={!canNext}
-          style={!canNext ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
+          disabled={!canNext || submitting}
+          aria-busy={submitting}
+          style={!canNext || submitting ? { opacity: 0.55, cursor: 'not-allowed' } : {}}
         >
-          {step === 4 ? 'Request My Free RESCO Assessment' : 'Continue'}
-          <IconArrowRight size={14} className="arr" />
+          {submitting ? (
+            <>
+              <span className="submit-spinner" aria-hidden="true" />
+              Submitting assessment…
+            </>
+          ) : (
+            <>
+              {step === 4 ? 'Request My Free RESCO Assessment' : 'Continue'}
+              <IconArrowRight size={14} className="arr" />
+            </>
+          )}
         </button>
       </div>
+
+      {submitError && (
+        <p className="form-submit-error" role="alert">{submitError}</p>
+      )}
 
       <p className="form-footer-note">
         {step === 4
@@ -461,7 +579,7 @@ function Step4({ data, set }) {
 }
 
 // ----- SUCCESS -----
-function SuccessScreen({ data, onReset }) {
+function SuccessScreen({ data, submissionId, onReset }) {
   const facility = FACILITY_OPTIONS.find(f => f.id === data.facility)?.label || '—';
   return (
     <div className="form-card">
@@ -477,8 +595,15 @@ function SuccessScreen({ data, onReset }) {
           to schedule an initial commercial review.
         </p>
 
+        <div className="submission-reference">
+          <span>Submission ID</span>
+          <strong>{submissionId}</strong>
+          <small>Keep this reference for future communication.</small>
+        </div>
+
         <dl className="success-summary">
           <dt>Facility</dt><dd>{facility} · {data.city || '-'}, {data.state || '-'}</dd>
+          <dt>Location source</dt><dd>{data.locationSource || 'Entered manually'}</dd>
           <dt>Monthly bill</dt><dd>{data.bill || '-'}</dd>
           <dt>Proposed site</dt><dd>{data.site || '-'}</dd>
           <dt>Primary objective</dt><dd>{data.objective || '-'}</dd>
