@@ -22,7 +22,7 @@ import {
   ProblemSection,
   ProcessSection,
   RescoExplainer,
-  WhyAkunthaSection,
+  WhySection,
 } from "./components/Sections.jsx";
 
 // Change this single value to false to hide the customization menu.
@@ -91,7 +91,7 @@ function App() {
         <BenefitsSection />
         <EligibilitySection />
         <ProcessSection />
-        <WhyAkunthaSection />
+        <WhySection />
         <IndustriesSection />
         <MidCTA />
         <FaqSection />

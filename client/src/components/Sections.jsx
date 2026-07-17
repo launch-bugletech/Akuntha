@@ -6,6 +6,10 @@ import industryColdStorage from '../assests/img/industry-coldstorage.jpg';
 import industryHospital from '../assests/img/industry-hospital.jpg';
 import industryManufacturing from '../assests/img/industry-manufacturing.jpg';
 import industryWarehouse from '../assests/img/industry-warehouse.jpg';
+import industryHotels from '../assests/img/hotels-hospitality.png';
+import industryCampus from '../assests/img/educational-campus.png';
+import industryOffice from '../assests/img/commercial-office-building.png';
+import industryShop from '../assests/img/retail&shopping-complex.png';
 
 // All content sections (except hero and form) - Nav, Problem, RESCO, Benefits,
 // Eligibility, Process, Why Akuntha, Industries, Mid CTA, FAQ, Final CTA, Footer
@@ -466,7 +470,7 @@ const WHY = [
     d: 'Engineering, commercial, approval, execution, and operational responsibilities are coordinated across the relevant project partners.' },
 ];
 
-export function WhyAkunthaSection() {
+export function WhySection() {
   return (
     <section className="section" id="why" style={{ background: 'var(--bg-elev)' }}>
       <div className="container">
@@ -490,7 +494,7 @@ export function WhyAkunthaSection() {
           ))}
         </div>
 
-        <div className="proof-strip">
+        {/* <div className="proof-strip">
           <div className="proof-cell">
             <div className="big">15<span className="unit">+</span></div>
             <div className="label">Years of experience</div>
@@ -507,10 +511,7 @@ export function WhyAkunthaSection() {
             <div className="big">XX</div>
             <div className="label">Service regions</div>
           </div>
-        </div>
-        <p className="proof-note">
-          Numbers shown are placeholders to be replaced with verified figures before launch.
-        </p>
+        </div> */}
       </div>
     </section>
   );
@@ -521,10 +522,10 @@ const INDUSTRIES = [
   { n: '02', t: 'Warehouses & Logistics', d: 'Large flat rooftops often make ideal generation surfaces with minimal shading.', img: industryWarehouse },
   { n: '03', t: 'Cold Storage Facilities', d: 'Consistent daytime refrigeration loads can make onsite solar worth evaluating.', img: industryColdStorage },
   { n: '04', t: 'Hospitals & Healthcare', d: 'Round-the-clock demand with a steady daytime baseline for the solar profile.', img: industryHospital },
-  { n: '05', t: 'Hotels & Hospitality', d: 'Kitchens, HVAC and laundry create high daytime demand across the property.', img: null },
-  { n: '06', t: 'Educational Campuses', d: 'Large roof and land areas often available across academic buildings and dorms.', img: null },
-  { n: '07', t: 'Commercial Buildings', d: 'Office and mixed-use properties with significant HVAC and lighting loads.', img: null },
-  { n: '08', t: 'Retail & Shopping Complexes', d: 'Extended daytime hours and cooling loads make retail a natural RESCO fit.', img: null },
+  { n: '05', t: 'Hotels & Hospitality', d: 'Kitchens, HVAC and laundry create high daytime demand across the property.', img: industryHotels },
+  { n: '06', t: 'Educational Campuses', d: 'Large roof and land areas often available across academic buildings and dorms.', img: industryCampus },
+  { n: '07', t: 'Commercial Buildings', d: 'Office and mixed-use properties with significant HVAC and lighting loads.', img: industryOffice },
+  { n: '08', t: 'Retail & Shopping Complexes', d: 'Extended daytime hours and cooling loads make retail a natural RESCO fit.', img: industryShop },
 ];
 
 export function IndustriesSection() {
@@ -551,7 +552,7 @@ export function IndustriesSection() {
                 </div>
               )}
               <div className="content">
-                <span className="num">- {ind.n}</span>
+                <span className="num">{ind.n}</span>
                 <div>
                   <h3>{ind.t}</h3>
                   <p>{ind.d}</p>
