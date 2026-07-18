@@ -10,11 +10,14 @@ import industryHotels from '../assests/img/hotels-hospitality.png';
 import industryCampus from '../assests/img/educational-campus.png';
 import industryOffice from '../assests/img/commercial-office-building.png';
 import industryShop from '../assests/img/retail&shopping-complex.png';
+import useLanguage from '../i18n/useLanguage.js';
 
 // All content sections (except hero and form) - Nav, Problem, RESCO, Benefits,
 // Eligibility, Process, Why Akuntha, Industries, Mid CTA, FAQ, Final CTA, Footer
 
 export function Nav() {
+  const { language, languages, setLanguage, t } = useLanguage();
+
   return (
     <nav className="nav">
       <div className="nav-inner">
@@ -450,7 +453,7 @@ export function ProcessSection() {
           {PROCESS.map(p => (
             <li className="timeline-item" key={p.n}>
               <span className="timeline-node"></span>
-              <span className="timeline-num">- {p.n}</span>
+              <span className="timeline-num">{p.n}</span>
               <h3 className="timeline-title">{p.t}</h3>
               <p className="desc">{p.d}</p>
             </li>
@@ -733,7 +736,7 @@ export function FinalCTA() {
           <a href="#assessment" className="btn btn-primary btn-lg">
             Get a Free RESCO Project Assessment <IconArrowRight size={16} className="arr" />
           </a>
-          <a href="mailto:solar@akuntha.example" className="link-arrow">
+          <a href="https://akuntha.com/contact-us/" className="link-arrow">
             Speak with our commercial solar team <IconArrowRight size={14} />
           </a>
         </div>
