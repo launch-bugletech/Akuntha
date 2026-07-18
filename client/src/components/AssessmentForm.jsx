@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { IconFactory, IconWarehouse, IconSnowflake, IconBuilding, IconHospital, IconHotel, IconSchool, IconRetail, IconOther, IconArrowLeft, IconArrowRight, IconPlus, IconCheck, IconChevronDown } from './Icons.jsx';
+import { IconFactory, IconWarehouse, IconSnowflake, IconBuilding, IconHospital, IconHotel, IconSchool, IconRetail, IconOther, IconArrowLeft, IconArrowRight, IconPlus, IconCheck, IconChevronDown, IconMapPin } from './Icons.jsx';
 import FacilityMap from './FacilityMap.jsx';
 
 // 4-step Assessment Form — sticky right column of hero
@@ -40,6 +40,7 @@ const RESCO_API_TOKEN = import.meta.env.VITE_RESCO_API_TOKEN;
 
 const INITIAL_FORM_DATA = {
   facility: '',
+  locationMethod: 'manual', address: '',
   state: '', city: '', landmark: '', pincode: '',
   latitude: null, longitude: null, locationSource: '', locationLabel: '',
   bill: '', consumption: '', ownership: '',
@@ -51,6 +52,10 @@ const INITIAL_FORM_DATA = {
 
 function validateSubmission(data) {
   if (!data.facility) return 'Select a facility type.';
+  if (data.locationMethod === 'manual' && !data.address.trim()) return 'Enter the full facility address.';
+  if (data.locationMethod === 'map' && (data.latitude == null || data.longitude == null)) {
+    return 'Choose the facility location on the map.';
+  }
   if (!data.state.trim()) return 'Enter the facility state.';
   if (!data.city.trim()) return 'Enter the facility city.';
   if (!/^\d{6}$/.test(data.pincode)) return 'Enter a valid 6-digit PIN code.';
@@ -87,10 +92,16 @@ function AssessmentForm() {
 
   const totalSteps = 4;
   const canNext = useMemo(() => {
-    if (step === 1) return data.facility
-      && data.state.trim()
-      && data.city.trim()
-      && /^\d{6}$/.test(data.pincode);
+    if (step === 1) {
+      const hasLocationDetails = data.state.trim()
+        && data.city.trim()
+        && /^\d{6}$/.test(data.pincode);
+      const hasLocationSource = data.locationMethod === 'manual'
+        ? data.address.trim()
+        : data.latitude != null && data.longitude != null;
+
+      return data.facility && hasLocationDetails && hasLocationSource;
+    }
     if (step === 2) return data.site && data.ownership;
     if (step === 3) return data.bill;
     if (step === 4) {
@@ -121,6 +132,8 @@ function AssessmentForm() {
       apiToken: RESCO_API_TOKEN || '',
       facility: data.facility,
       facilityLabel: facilityOption?.label || data.facility,
+      locationMethod: data.locationMethod,
+      address: data.address.trim(),
       state: data.state.trim(),
       city: data.city.trim(),
       landmark: data.landmark.trim(),
@@ -194,8 +207,7 @@ function AssessmentForm() {
       <div className="form-head">
         <h3 className="form-title">Get a Free RESCO Project Assessment</h3>
         <p className="form-sub">
-          Answer a few questions about your facility and electricity use. Our engineering team
-          will assess whether your site may be suitable for a RESCO project.
+         Complete this free assessment to help us evaluate whether RESCO, financed solar, or direct ownership may suit your facility.
         </p>
       </div>
 
@@ -260,6 +272,7 @@ function AssessmentForm() {
 // ----- STEP 1: Facility profile -----
 function Step1({ data, set }) {
   const [facilityOpen, setFacilityOpen] = useState(false);
+  const [mapPreviewEnabled, setMapPreviewEnabled] = useState(false);
   const selectedFacility = FACILITY_OPTIONS.find(option => option.id === data.facility);
   const SelectedFacilityIcon = selectedFacility?.Icon || IconFactory;
 
@@ -331,6 +344,88 @@ function Step1({ data, set }) {
       </div>
 
       <p className="form-q-title">Where is the facility located?</p>
+      <div className="location-methods" role="radiogroup" aria-label="Location entry method">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={data.locationMethod === 'manual'}
+          className={`location-method ${data.locationMethod === 'manual' ? 'selected' : ''}`}
+          onClick={() => {
+            set('locationMethod', 'manual');
+            setMapPreviewEnabled(false);
+          }}
+        >
+          <IconBuilding size={18} />
+          <span>
+            <strong>Enter address manually</strong>
+            <small>Fastest and available anytime</small>
+          </span>
+          {data.locationMethod === 'manual' && <IconCheck size={16} />}
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={data.locationMethod === 'map'}
+          className={`location-method ${data.locationMethod === 'map' ? 'selected' : ''}`}
+          onClick={() => {
+            set('locationMethod', 'map');
+            setMapPreviewEnabled(true);
+          }}
+        >
+          <IconMapPin size={18} />
+          <span>
+            <strong>Choose on map</strong>
+            <small>Pin the exact facility location</small>
+          </span>
+          {data.locationMethod === 'map' && <IconCheck size={16} />}
+        </button>
+      </div>
+
+      {data.locationMethod === 'manual' && (
+        <div className="input-row stack">
+          <div className="field">
+            <label htmlFor="facility-address">Full address</label>
+            <textarea
+              id="facility-address"
+              className="manual-address"
+              value={data.address}
+              onChange={e => set('address', e.target.value)}
+              placeholder="Building, street, industrial area and nearby details"
+              rows="3"
+            />
+          </div>
+        </div>
+      )}
+
+      {data.locationMethod === 'map' && (
+        <>
+          <div className="map-mode-note">
+            Select the facility on the map, then confirm the address details below.
+          </div>
+          {mapPreviewEnabled ? (
+            <FacilityMap
+              pincode={data.pincode}
+              latitude={data.latitude}
+              longitude={data.longitude}
+              onLocationChange={(updates) => Object.entries(updates).forEach(([key, value]) => set(key, value))}
+              onManualFallback={() => {
+                set('locationMethod', 'manual');
+                setMapPreviewEnabled(false);
+              }}
+            />
+          ) : (
+            <div className="map-load-gate">
+              <span className="map-load-gate-icon" aria-hidden="true"><IconMapPin size={24} /></span>
+              <div>
+                <strong>Map preview is paused</strong>
+                <span>Open it only when you need to adjust the facility pin.</span>
+              </div>
+              <button type="button" onClick={() => setMapPreviewEnabled(true)}>Load map preview</button>
+            </div>
+          )}
+        </>
+      )}
+
       <div className="input-row">
         <div className="field">
           <label>State</label>
@@ -343,7 +438,10 @@ function Step1({ data, set }) {
       </div>
       <div className="input-row stack">
         <div className="field">
-          <label>Landmark / locality</label>
+          <label className="field-label-row">
+            <span>Landmark / locality</span>
+            <span className="optional-badge">Optional</span>
+          </label>
           <input
             value={data.landmark}
             onChange={e => set('landmark', e.target.value)}
@@ -362,12 +460,6 @@ function Step1({ data, set }) {
           />
         </div>
       </div>
-      <FacilityMap
-        pincode={data.pincode}
-        latitude={data.latitude}
-        longitude={data.longitude}
-        onLocationChange={(updates) => Object.entries(updates).forEach(([key, value]) => set(key, value))}
-      />
     </>
   );
 }
@@ -390,8 +482,11 @@ function Step2({ data, set }) {
         ))}
       </div>
 
-      <p className="form-q-title">Approximate available area</p>
-      <p className="form-q-help">Optional. Rough estimates are fine.</p>
+      <div className="form-question-head">
+        <p className="form-q-title">Approximate available area</p>
+        <span className="optional-badge">Optional</span>
+      </div>
+      <p className="form-q-help">Rough estimates are fine.</p>
       <div className="input-row">
         <div className="field">
           <label>Area</label>
@@ -475,9 +570,12 @@ function Step3({ data, set }) {
       </div>
 
       <div className="bill-upload">
-        <div>
-          <p className="form-q-title">Upload your electricity bill</p>
-          <p className="form-q-help">Optional. PDF, JPG, JPEG or PNG up to 10 MB.</p>
+        <div className="form-question-head">
+          <div>
+            <p className="form-q-title">Upload your electricity bill</p>
+            <p className="form-q-help">PDF, JPG, JPEG or PNG up to 10 MB.</p>
+          </div>
+          <span className="optional-badge">Optional</span>
         </div>
         <label className={`file-upload-button ${data.fileName ? 'has-file' : ''}`}>
           <input
@@ -491,8 +589,11 @@ function Step3({ data, set }) {
         {data.billFileError && <p className="file-upload-error">{data.billFileError}</p>}
       </div>
 
-      <p className="form-q-title">Approximate monthly consumption</p>
-      <p className="form-q-help">Optional - usually shown on your latest electricity bill.</p>
+      <div className="form-question-head">
+        <p className="form-q-title">Approximate monthly consumption</p>
+        <span className="optional-badge">Optional</span>
+      </div>
+      <p className="form-q-help">Usually shown on your latest electricity bill.</p>
       <div className="input-row stack">
         <div className="field">
           <label>Monthly units</label>
@@ -515,6 +616,20 @@ function Step3({ data, set }) {
 
 // ----- STEP 4: Contact -----
 function Step4({ data, set }) {
+  const [touched, setTouched] = useState({});
+  const markTouched = (field) => setTouched(current => ({ ...current, [field]: true }));
+  const mobileStartsIncorrectly = data.mobile.length > 0 && !/^[6-9]/.test(data.mobile);
+  const mobileHasWrongLength = touched.mobile && data.mobile.length > 0 && data.mobile.length !== 10;
+  const mobileError = mobileStartsIncorrectly
+    ? 'Indian mobile numbers must start with 6, 7, 8, or 9.'
+    : mobileHasWrongLength
+      ? 'Enter all 10 digits of the mobile number.'
+      : '';
+  const emailError = touched.email && data.email.length > 0
+    && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())
+    ? 'Enter a valid work email address, such as name@company.in.'
+    : '';
+
   return (
     <>
       <p className="form-q-title">Where should we send your assessment?</p>
@@ -529,23 +644,31 @@ function Step4({ data, set }) {
         </div>
       </div>
       <div className="input-row">
-        <div className="field">
+        <div className={`field ${mobileError ? 'invalid' : ''}`}>
           <label>Mobile number</label>
           <input
             value={data.mobile}
             onChange={e => set('mobile', e.target.value.replace(/\D/g, '').slice(0,10))}
+            onBlur={() => markTouched('mobile')}
             placeholder="10-digit"
             inputMode="numeric"
+            aria-invalid={Boolean(mobileError)}
+            aria-describedby={mobileError ? 'mobile-error' : undefined}
           />
+          {mobileError && <p className="field-error" id="mobile-error" role="alert">{mobileError}</p>}
         </div>
-        <div className="field">
+        <div className={`field ${emailError ? 'invalid' : ''}`}>
           <label>Work email</label>
           <input
             value={data.email}
             onChange={e => set('email', e.target.value)}
+            onBlur={() => markTouched('email')}
             placeholder="you@company.in"
             type="email"
+            aria-invalid={Boolean(emailError)}
+            aria-describedby={emailError ? 'email-error' : undefined}
           />
+          {emailError && <p className="field-error" id="email-error" role="alert">{emailError}</p>}
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import { Fragment, useState as useSt } from 'react';
 import AssessmentForm from './AssessmentForm.jsx';
-import { IconArrowRight, IconCheck, IconBolt, IconTools, IconChart, IconShield, IconPlus, IconWallet, IconFactory, IconGrid, IconSun } from './Icons.jsx';
+import { IconArrowRight, IconCheck, IconBolt, IconTools, IconChart, IconShield, IconPlus, IconWallet, IconFactory, IconGrid, IconSun, IconGlobe } from './Icons.jsx';
 import heroRooftop from '../assests/img/hero-rooftop.jpg';
 import industryColdStorage from '../assests/img/industry-coldstorage.jpg';
 import industryHospital from '../assests/img/industry-hospital.jpg';
@@ -29,8 +29,21 @@ export function Nav() {
           />
         </a>
         <div className="nav-actions">
-          <a className="btn btn-ghost" href="#assessment" style={{ padding: '10px 18px', fontSize: 13 }}>
-            Free Assessment
+          <label className="language-switcher">
+            <IconGlobe size={16} />
+            <span className="sr-only">{t('nav.languageLabel')}</span>
+            <select
+              value={language}
+              onChange={(event) => setLanguage(event.target.value)}
+              aria-label={t('nav.languageLabel')}
+            >
+              {languages.map(({ code, label }) => (
+                <option value={code} key={code}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <a className="btn btn-ghost nav-assessment" href="#assessment">
+            {t('nav.freeAssessment')}
           </a>
         </div>
       </div>
@@ -39,17 +52,19 @@ export function Nav() {
 }
 
 export function Hero({ h1 }) {
-  const parts = h1.split(/\*(.+?)\*/g); // *italic* -> em
+  const { language, t } = useLanguage();
+  const headline = language === 'en' && h1 ? h1 : t('hero.title');
+  const parts = headline.split(/\*(.+?)\*/g); // *italic* -> em
   return (
     <header className="hero">
       <div className="hero-media">
-        <img src={heroRooftop} alt="Solar panels installed on a commercial rooftop" />
+        <img src={heroRooftop} alt={t('hero.imageAlt')} />
       </div>
       <div className="container hero-inner">
         <div className="hero-left">
           <div className="hero-eyebrow-row">
             <span className="dot" aria-hidden="true"></span>
-            <span className="eyebrow">Commercial solar without capital investment</span>
+            <span className="eyebrow">{t('hero.eyebrow')}</span>
           </div>
           <h1 className="h-display hero-h1">
             {parts.map((p, i) => i % 2 === 1
@@ -58,31 +73,29 @@ export function Hero({ h1 }) {
             )}
           </h1>
           <p className="lede hero-sub">
-            Reduce electricity costs without blocking capital in solar equipment.
-            Share your latest electricity bill and site details. We’ll review whether your factory is suitable for investor-backed solar, financed solar, or direct solar ownership.
+            {t('hero.description')}
           </p>
 
           <div className="hero-cta-row">
             <a href="#assessment" className="btn btn-primary btn-lg">
-              Check My Site Feasibility
+              {t('hero.primaryCta')}
 
               <IconArrowRight size={16} className="arr" />
             </a>
             <a href="#how-it-works" className="link-arrow">
-            Learn How RESCO Works <IconArrowRight size={14} />
+            {t('hero.secondaryCta')} <IconArrowRight size={14} />
             </a>
           </div>
 
           <ul className="trust-list">
-            <li><span className="trust-icon"><IconWallet size={16} /></span> Zero upfront solar investment</li>
-            <li><span className="trust-icon"><IconFactory size={16} /></span> Designed for C&amp;I facilities</li>
-            <li><span className="trust-icon"><IconTools size={16} /></span> Engineering, EPC and O&amp;M in-house</li>
-            <li><span className="trust-icon"><IconGrid size={16} /></span> Rooftop and ground-mount capable</li>
+            <li><span className="trust-icon"><IconWallet size={16} /></span> {t('hero.trust.noUpfront')}</li>
+            <li><span className="trust-icon"><IconFactory size={16} /></span> {t('hero.trust.savings')}</li>
+            <li><span className="trust-icon"><IconTools size={16} /></span> {t('hero.trust.rooftops')}</li>
+            <li><span className="trust-icon"><IconGrid size={16} /></span> {t('hero.trust.review')}</li>
           </ul>
 
           <div className="hero-clarify">
-            <strong>Final feasibility depends on</strong> electricity consumption, rooftop or land
-            availability, DISCOM rules, finance approval, investor interest, and commercial terms.
+            <strong>{t('hero.clarificationLead')}</strong>{' '}{t('hero.clarificationText')}
           </div>
 
         </div>

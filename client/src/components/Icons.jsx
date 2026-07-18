@@ -24,6 +24,18 @@ export const IconArrowLeft = (p) => <Icon {...p}><path d="M19 12H5M12 5l-7 7 7 7
 export const IconPlus = (p) => <Icon {...p}><path d="M12 5v14M5 12h14" /></Icon>;
 export const IconMinus = (p) => <Icon {...p}><path d="M5 12h14" /></Icon>;
 export const IconChevronDown = (p) => <Icon {...p}><path d="M6 9l6 6 6-6" /></Icon>;
+export const IconMapPin = (p) => (
+  <Icon {...p}>
+    <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z" />
+    <circle cx="12" cy="10" r="2.5" />
+  </Icon>
+);
+export const IconGlobe = (p) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+  </Icon>
+);
 
 // Facility icons
 export const IconFactory = (p) => (
@@ -134,5 +146,3 @@ export const IconSun = (p) => (
     <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
   </Icon>
 );
-
-

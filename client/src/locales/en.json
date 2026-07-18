@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "languageLabel": "Select language",
+    "freeAssessment": "Free Assessment"
+  },
+  "hero": {
+    "imageAlt": "Solar panels installed on a commercial rooftop",
+    "eyebrow": "Commercial & industrial solar under the RESCO model",
+    "title": "Your Factory Can Go Solar Without Paying for the *Solar Plant*",
+    "description": "Reduce electricity costs without blocking capital in solar equipment. Share your latest electricity bill and site details. We’ll review whether your factory is suitable for investor-backed solar, financed solar, or direct solar ownership.",
+    "primaryCta": "Check My Site Feasibility",
+    "secondaryCta": "Learn How RESCO Works",
+    "trust": {
+      "noUpfront": "No upfront investment under RESCO",
+      "savings": "Potential long term electricity savings",
+      "rooftops": "Designed for commercial and industrial rooftops",
+      "review": "Technical and commercial suitability review"
+    },
+    "clarificationLead": "Final feasibility depends on",
+    "clarificationText": "electricity consumption, rooftop or land availability, DISCOM rules, finance approval, investor interest, and commercial terms."
+  }
+}
